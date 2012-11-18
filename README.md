@@ -19,7 +19,7 @@ Basic usage
 Below you can find an example of 2-process Mutex consisting of two 
 processes (Proc0, Proc1) and synchronising shared variable model (Sync).
 To understand the model you need to consult the cited paper: one look
-on Figure 1 should explain everything. The only nonintuitive thing is
+at Figure 1 should explain everything. The only nonintuitive thing is
 perhaps that nonlabeled states need to be marked with *labelling: false*.
 (The parser was written in a hurry.)
 
