@@ -174,8 +174,8 @@ property: bad0 and bad1;
 
 The model source should be paired with an experiment plan file. For example the
 below plan first gives the command invoking the cvc3 SMT checker 
-(*cvc3 -lang smtlib2*), then follows with the definition of the logic 
-(*QF_LRA*), indicates the lower parameters in the model (*delta*)
+( *cvc3 -lang smtlib2* ), then follows with the definition of the logic 
+( *QF_LRA* ), indicates the lower parameters in the model ( *delta* )
 and says that the experiment should start with unwinding of the model up to 2
 and synthesis of not more than 10 parameters and then move to 4 and 5 parameters,
 etc.
