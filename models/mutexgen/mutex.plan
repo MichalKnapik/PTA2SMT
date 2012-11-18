@@ -1,0 +1,9 @@
+cvc3 -lang smtlib2
+QF_LRA
+delta
+1 10
+2 10
+3 10
+4 10
+5 10
+6 10
