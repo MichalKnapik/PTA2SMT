@@ -9,7 +9,7 @@ Configuration / prerequisites
 ---------------------------------------------------------------------------
 
 Apart from usual dependencies the tool needs to have an access to smtlib2
-compliant SMT checker. As of now it has been tested with CVC3 only. 
+compliant SMT checker. (It has been tested with CVC3 only.)
 The command to start SMT checker needs to be included in the experiment's 
 plan file. 
 
