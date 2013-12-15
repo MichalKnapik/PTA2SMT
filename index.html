@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>pta2smt by MichalKnapik</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>pta2smt</h1>
+        <h2>Parametric Timed Automata SMT checker</h2>
+        <a href="https://github.com/MichalKnapik/PTA2SMT" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a name="satisfiability-modulo-theories-parametric-timed-automata-tool" class="anchor" href="#satisfiability-modulo-theories-parametric-timed-automata-tool"><span class="octicon octicon-link"></span></a>Satisfiability Modulo Theories Parametric Timed Automata Tool</h1>
+
+<p>This is a prototype tool for synthesis of parameters under which some given state of a system
+described using Parametric Timed Automata is reachable. It's a companion to paper
+<a href="http://www.ceur-ws.org/Vol-851/paper6.pdf">http://www.ceur-ws.org/Vol-851/paper6.pdf</a>.</p>
+
+<h2>
+<a name="configuration--prerequisites" class="anchor" href="#configuration--prerequisites"><span class="octicon octicon-link"></span></a>Configuration / prerequisites</h2>
+
+<p>Apart from usual dependencies the tool needs to have an access to smtlib2
+compliant SMT checker. (It has been tested with CVC3 only.)
+The command to start SMT checker needs to be included in the experiment's 
+plan file. </p>
+
+<h2>
+<a name="basic-usage" class="anchor" href="#basic-usage"><span class="octicon octicon-link"></span></a>Basic usage</h2>
+
+<p>Below you can find an example of 2-process Mutex consisting of two 
+processes (Proc0, Proc1) and synchronising shared variable model (Sync).
+To understand the model you need to consult the cited paper: one look
+at Figure 1 should explain everything. The only nonintuitive thing is
+perhaps that nonlabeled states need to be marked with <em>labelling: false</em>.
+(The parser was written in a hurry.)</p>
+
+<pre><code>network Mutex {
+
+automaton Proc0 {
+locations:
+initial location(idle0)
+        invariant: true, labelling: false;
+
+        location(trying0)
+        invariant: true, labelling: false;
+
+        location(waiting0)
+        invariant: true, labelling: false;
+
+        location(critical0)
+        invariant: true, labelling: bad0;
+transitions:
+            (idle0, trying0)
+            action: start0,
+            guard: true,
+            reset: x0 = 0;
+
+            (trying0, waiting0)
+            action: setx0,
+            guard: x0 &lt; Delta,
+            reset: x0 = 0;
+
+            (waiting0, critical0)
+            action: enter0,
+            guard: x0 &gt; delta,
+            reset: true;
+
+            (critical0, idle0)
+            action: setx00,
+            guard: true,
+            reset: true;
+};
+
+automaton Proc1 {
+locations:
+initial location(idle1)
+        invariant: true, labelling: false;
+
+        location(trying1)
+        invariant: true, labelling: false;
+
+        location(waiting1)
+        invariant: true, labelling: false;
+
+        location(critical1)
+        invariant: true, labelling: bad1;
+transitions:
+            (idle1, trying1)
+            action: start1,
+            guard: true,
+            reset: x1 = 0;
+
+            (trying1, waiting1)
+            action: setx1,
+            guard: x1 &lt; Delta,
+            reset: x1 = 0;
+
+            (waiting1, critical1)
+            action: enter1,
+            guard: x1 &gt; delta,
+            reset: true;
+
+            (critical1, idle1)
+            action: setx01,
+            guard: true,
+            reset: true;
+};
+
+automaton Sync {
+locations:
+initial location(zero)
+        invariant: true, labelling: false;
+
+        location(process0)
+        invariant: true, labelling: false;
+
+        location(process1)
+        invariant: true, labelling: false;
+transitions:
+            (zero, zero)
+            action: start0,
+            guard: true,
+            reset: true;
+
+            (zero, zero)
+            action: start1,
+            guard: true,
+            reset: true;
+
+            (zero, process0)
+            action: setx0,
+            guard: true,
+            reset: true;
+
+            (zero, process1)
+            action: setx1,
+            guard: true,
+            reset: true;
+
+            (process0, zero)
+            action: setx00,
+            guard: true,
+            reset: true;
+
+            (process1, zero)
+            action: setx01,
+            guard: true,
+            reset: true;
+
+            (process0, process0 )
+            action: enter0,
+            guard: true,
+            reset: true;
+
+            (process1, process1 )
+            action: enter1,
+            guard: true,
+            reset: true;
+
+            (process0, process0 )
+            action: setx0,
+            guard: true,
+            reset: true;
+
+            (process0, process1)
+            action: setx1,
+            guard: true,
+            reset: true;
+
+            (process1, process0)
+            action: setx0,
+            guard: true,
+            reset: true;
+
+            (process1, process1)
+            action: setx1,
+            guard: true,
+            reset: true;
+};
+};
+property: bad0 and bad1;
+</code></pre>
+
+<p>The model source should be paired with an experiment plan file. For example the
+below plan first gives the command invoking the cvc3 SMT checker 
+( <em>cvc3 -lang smtlib2</em> ), then follows with the definition of the logic 
+( <em>QF_LRA</em> ), indicates the lower parameters in the model ( <em>delta</em> )
+and says that the experiment should start with unwinding of the model up to 2
+and synthesis of not more than 10 parameters and then move to 4 and 5 parameters,
+etc.</p>
+
+<pre><code>cvc3 -lang smtlib2
+QF_LRA
+delta
+2 10
+4 5
+5 2
+</code></pre>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/MichalKnapik/PTA2SMT/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/MichalKnapik/PTA2SMT/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/MichalKnapik/PTA2SMT"></a> is maintained by <a href="https://github.com/MichalKnapik">MichalKnapik</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
