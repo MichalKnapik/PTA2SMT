@@ -11,8 +11,13 @@
 #include <iterator>
 #include <vector>
 #include <algorithm>
+extern "C" {
 #include "timedAutomataParser.tab.h"
+}
+extern "C" {
 #include "externs.h"
+}
+
 #include "transition.h"
 #include "globalState.h"
 #include "modalProperty.h"
